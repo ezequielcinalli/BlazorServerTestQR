@@ -1,0 +1,77 @@
+﻿@page "/customBarcodeReader"
+
+<h3>BarcodeReader</h3>
+
+<h4>Barcode/QR code</h4>
+
+<button class="btn btn-primary"
+        type="button"
+        @onclick="(() => ShowScanBarcode = !ShowScanBarcode)">
+    Scan
+</button>
+<input type="text" class="form-control" style="min-width: 100px;"
+       @bind-value="BarCode"
+       placeholder="BarCode" />
+@if (ShowScanBarcode)
+{
+
+    <BarcodeReader ScanResult="((e) => { BarCode=e; ShowScanBarcode = !ShowScanBarcode; })"
+                   Close="(()=>ShowScanBarcode=!ShowScanBarcode)"
+                   OnError="OnError" />
+
+}
+
+<button class="btn btn-primary"
+        type="button"
+        @onclick="(() => ShowScanBarcodeCustom = !ShowScanBarcodeCustom)">
+    Scan code [custom interface]
+</button>
+<input type="text" class="form-control" style="min-width: 100px;"
+       @bind-value="BarCodeCustom"
+       placeholder="Barcode" />
+@if (ShowScanBarcodeCustom)
+{
+    <BarcodeReader ScanResult="((e) => { BarCodeCustom=e; ShowScanBarcodeCustom = !ShowScanBarcodeCustom; })"
+                   Close="(()=>ShowScanBarcodeCustom=!ShowScanBarcodeCustom)"
+                   OnError="OnError"
+                   UseBuiltinDiv="false"
+                   @ref="barcodeReaderCustom" />
+
+    <div @ref="barcodeReaderCustom.barcodeScannerElement">
+        <div style="width: 480px; max-width: 100%">
+            <button class="btn btn-outline-success p-2 m-1 w-25" data-action="startButton">Start</button>
+            <button class="btn btn-outline-success p-2 m-1 w-25" data-action="resetButton">Reset</button>
+            <button type="button" class="btn btn-outline-success p-2 m-1 w-25" data-action="closeButton">Close</button>
+
+            <div data-action="sourceSelectPanel" style="display:none">
+                <label for="sourceSelect">选择设备:</label>
+                <select data-action="sourceSelect" style="max-width:100%" class="form-control">
+                </select>
+            </div>
+            <div>
+                <video id="video" style="height:480px;width: 640px;border: 1px solid red"></video>
+            </div>
+        </div>
+    </div>
+
+
+}
+<p>@message</p>
+
+@code{
+
+    bool ShowScanBarcode { get; set; } = false;
+    public string? BarCode { get; set; }
+    bool ShowScanBarcodeCustom { get; set; } = false;
+    public string? BarCodeCustom { get; set; }
+
+    private string message;
+    BarcodeReader barcodeReaderCustom;
+
+    private Task OnError(string message)
+    {
+        this.message = message;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+} 
